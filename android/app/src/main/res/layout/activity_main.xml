@@ -16,7 +16,7 @@
         android:paddingEnd="26dp"
         android:paddingBottom="30dp">
 
-        <!-- Brand mark ------------------------------------------------------>
+        <!-- Brand mark ====================================================-->
         <ImageView
             android:id="@+id/imageLogo"
             android:layout_width="116dp"
@@ -38,7 +38,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imageLogo" />
 
-        <!-- Next reminder -------------------------------------------------->
+        <!-- Next reminder ================================================-->
         <TextView
             android:id="@+id/textNextLabel"
             style="@style/Felt.Label"
@@ -74,7 +74,7 @@
             app:layout_constraintTop_toBottomOf="@id/textNextTime"
             tools:text="in 1h 42m" />
 
-        <!-- Settings panel ------------------------------------------------->
+        <!-- Settings panel ===============================================-->
         <LinearLayout
             android:id="@+id/panel"
             android:layout_width="0dp"
