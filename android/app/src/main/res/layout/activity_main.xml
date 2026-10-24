@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_felt"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="26dp"
+        android:paddingTop="36dp"
+        android:paddingEnd="26dp"
+        android:paddingBottom="30dp">
+
+        <!-- Brand mark ------------------------------------------------------>
+        <ImageView
+            android:id="@+id/imageLogo"
+            android:layout_width="116dp"
+            android:layout_height="116dp"
+            android:contentDescription="@string/app_name"
+            android:src="@mipmap/ic_launcher"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textBrand"
+            style="@style/Felt.Label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/app_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageLogo" />
+
+        <!-- Next reminder -------------------------------------------------->
+        <TextView
+            android:id="@+id/textNextLabel"
+            style="@style/Felt.Label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="@string/next_reminder"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textBrand" />
+
+        <TextView
+            android:id="@+id/textNextTime"
+            style="@style/Felt.Deboss.Display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/reminders_off"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textNextLabel"
+            tools:text="12:00 PM" />
+
+        <TextView
+            android:id="@+id/textCountdown"
+            style="@style/Felt.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/em_dash"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textNextTime"
+            tools:text="in 1h 42m" />
+
+        <!-- Settings panel ------------------------------------------------->
+        <LinearLayout
+            android:id="@+id/panel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:background="@drawable/bg_panel_deboss"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textCountdown">
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchReminders"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/reminders"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                tools:checked="true" />
+
+            <View style="@style/Felt.Divider" />
+
+            <TextView
+                style="@style/Felt.Label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/interval" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupInterval"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:chipSpacingHorizontal="8dp"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip1h"
+                    style="@style/Felt.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/interval_1h" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip2h"
+                    style="@style/Felt.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/interval_2h" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip3h"
+                    style="@style/Felt.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/interval_3h" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip4h"
+                    style="@style/Felt.Chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/interval_4h" />
+            </com.google.android.material.chip.ChipGroup>
+
+            <TextView
+                android:id="@+id/textIntervalSummary"
+                style="@style/Felt.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                tools:text="Next: 12:00 PM · 2:00 PM · 4:00 PM" />
+
+            <View style="@style/Felt.Divider" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchQuietHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/quiet_hours"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textExactAlarm"
+                style="@style/Felt.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/exact_alarm_hint"
+                android:textColor="@color/accent"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textVersion"
+            style="@style/Felt.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:alpha="0.6"
+            android:text="@string/version_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/panel"
+            tools:text="v1.0.0" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

@@ -1,0 +1,24 @@
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
+.gradle/
+
+# Signing material
+#
+# NOTE: android/keystore/release.p12 is a DEMO key that is committed on purpose
+# so that CI can sign the release APK without any manual setup. Replace it with
+# your own key before shipping the app to real users, and keep that key out of
+# version control.
+android/keystore/*.jks
+android/keystore/*.keystore
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
