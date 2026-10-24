@@ -88,11 +88,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set +e
           gh issue list --state all --limit 50 --json number,title \
-            --jq '.[] | select(.title | startswith("CI diagnostics")) | select(.title | contains("'"${GITHUB_SHA:0:8}"'") | not) | .number' \
-            | while read -r number; do
-                gh issue delete "$number" --yes || true
-              done
+            --jq '.[] | select(.title | startswith("CI diagnostics") or startswith("Release diagnostics")) | select(.title | contains("'"${GITHUB_SHA:0:8}"'") | not) | .number' \
+            > /tmp/stale.txt
+          while read -r number; do
+            [ -z "$number" ] && continue
+            gh issue delete "$number" --yes 2>/dev/null \
+              || gh issue close "$number" --reason "not planned" 2>/dev/null \
+              || echo "could not clean up issue #$number"
+          done < /tmp/stale.txt
+          echo "issues remaining:"
+          gh issue list --state all --limit 50 --json number,state,title \
+            --jq '.[] | "  #\(.number) [\(.state)] \(.title)"'
 
       - name: Publish failure diagnostics
         if: failure()

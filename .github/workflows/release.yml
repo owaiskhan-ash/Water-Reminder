@@ -131,4 +131,4 @@ jobs:
               fi
             done
           } > /tmp/report.md
-          gh issue create --title "Release diagnostics ${GITHUB_REF_NAME}" --body-file /tmp/report.md || true
+          gh issue create --title "Release diagnostics ${GITHUB_REF_NAME} ${GITHUB_SHA:0:8}" --body-file /tmp/report.md || true
