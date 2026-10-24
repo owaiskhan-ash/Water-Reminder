@@ -6,11 +6,13 @@ on:
       - '**'
     tags-ignore:
       - 'v*'
+    paths-ignore:
+      - 'docs/screenshots/**'
   pull_request:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 concurrency:
@@ -82,6 +84,28 @@ jobs:
           name: Water-Reminder-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Publish the rendered preview
+        if: success()
+        run: |
+          set +e
+          SRC="android/app/build/screenshots/home.png"
+          DST="docs/screenshots/home.png"
+          if [ ! -f "$SRC" ]; then
+            echo "no screenshot was produced"
+            exit 0
+          fi
+          if [ -f "$DST" ]; then
+            echo "preview already in the repository"
+            exit 0
+          fi
+          mkdir -p docs/screenshots
+          cp "$SRC" "$DST"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DST"
+          git commit -m "Add the rendered home screen preview"
+          git push origin "HEAD:${GITHUB_REF_NAME}" || echo "preview push skipped"
 
       - name: Clean up stale diagnostics
         if: always()
