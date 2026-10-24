@@ -41,13 +41,51 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Toolchain report
+        run: |
+          {
+            echo "## Toolchain"
+            echo ""
+            echo '```'
+            echo "java : $(java -version 2>&1 | head -1)"
+            echo "gradle: $(gradle --version 2>&1 | grep -E '^Gradle ' | head -1)"
+            echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
+            ls "${ANDROID_HOME}/platforms" 2>&1 | tr '\n' ' '; echo
+            ls "${ANDROID_HOME}/build-tools" 2>&1 | tr '\n' ' '; echo
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Unit tests
         working-directory: android
-        run: gradle :app:testDebugUnitTest --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle :app:testDebugUnitTest --no-daemon --stacktrace 2>&1 | tee /tmp/unit-tests.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            {
+              echo "## Unit tests failed"
+              echo '```'
+              tail -200 /tmp/unit-tests.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$status"
 
       - name: Assemble debug APK
         working-directory: android
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle :app:assembleDebug --no-daemon --stacktrace 2>&1 | tee /tmp/assemble.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            {
+              echo "## Assemble failed"
+              echo '```'
+              tail -200 /tmp/assemble.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$status"
 
       - name: Verify APK
         working-directory: android
@@ -56,7 +94,12 @@ jobs:
           APK="app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
           ls -la "$APK"
-          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | head -20
+          {
+            echo "## Debug APK"
+            echo '```'
+            "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
