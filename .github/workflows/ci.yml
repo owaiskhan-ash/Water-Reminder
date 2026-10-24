@@ -83,6 +83,17 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
+      - name: Clean up stale diagnostics
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue list --state all --limit 50 --json number,title \
+            --jq '.[] | select(.title | startswith("CI diagnostics")) | select(.title | contains("'"${GITHUB_SHA:0:8}"'") | not) | .number' \
+            | while read -r number; do
+                gh issue delete "$number" --yes || true
+              done
+
       - name: Publish failure diagnostics
         if: failure()
         env:

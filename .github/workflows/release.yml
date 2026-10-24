@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -66,11 +67,17 @@ jobs:
 
       - name: Unit tests
         working-directory: android
-        run: gradle :app:testReleaseUnitTest --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle :app:testReleaseUnitTest --no-daemon --stacktrace 2>&1 | tee /tmp/unit-tests.log
+          exit ${PIPESTATUS[0]}
 
       - name: Build signed release APK
         working-directory: android
-        run: gradle :app:assembleRelease --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle :app:assembleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/assemble.log
+          exit ${PIPESTATUS[0]}
 
       - name: Verify APK
         working-directory: android
@@ -101,3 +108,27 @@ jobs:
           files: Water-Reminder-*.apk
           generate_release_notes: true
           fail_on_unmatched_files: true
+
+      - name: Publish failure diagnostics
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "### Release diagnostics"
+            echo ""
+            echo "Tag: \`${GITHUB_REF_NAME}\`"
+            for f in unit-tests assemble; do
+              if [ -f "/tmp/$f.log" ]; then
+                echo ""
+                echo "<details><summary>$f</summary>"
+                echo ""
+                echo '```'
+                tail -250 "/tmp/$f.log"
+                echo '```'
+                echo ""
+                echo "</details>"
+              fi
+            done
+          } > /tmp/report.md
+          gh issue create --title "Release diagnostics ${GITHUB_REF_NAME}" --body-file /tmp/report.md || true
