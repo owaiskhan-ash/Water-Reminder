@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -44,48 +45,27 @@ jobs:
       - name: Toolchain report
         run: |
           {
-            echo "## Toolchain"
-            echo ""
-            echo '```'
-            echo "java : $(java -version 2>&1 | head -1)"
+            echo "java: $(java -version 2>&1 | head -1)"
             echo "gradle: $(gradle --version 2>&1 | grep -E '^Gradle ' | head -1)"
+            echo "gradle on PATH: $(command -v gradle || echo MISSING)"
             echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
-            ls "${ANDROID_HOME}/platforms" 2>&1 | tr '\n' ' '; echo
-            ls "${ANDROID_HOME}/build-tools" 2>&1 | tr '\n' ' '; echo
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+            echo "platforms: $(ls "${ANDROID_HOME}/platforms" 2>&1 | tr '\n' ' ')"
+            echo "build-tools: $(ls "${ANDROID_HOME}/build-tools" 2>&1 | tr '\n' ' ')"
+          } | tee /tmp/toolchain.log
 
       - name: Unit tests
         working-directory: android
         run: |
           set -o pipefail
           gradle :app:testDebugUnitTest --no-daemon --stacktrace 2>&1 | tee /tmp/unit-tests.log
-          status=${PIPESTATUS[0]}
-          if [ "$status" -ne 0 ]; then
-            {
-              echo "## Unit tests failed"
-              echo '```'
-              tail -200 /tmp/unit-tests.log
-              echo '```'
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
-          exit "$status"
+          exit ${PIPESTATUS[0]}
 
       - name: Assemble debug APK
         working-directory: android
         run: |
           set -o pipefail
           gradle :app:assembleDebug --no-daemon --stacktrace 2>&1 | tee /tmp/assemble.log
-          status=${PIPESTATUS[0]}
-          if [ "$status" -ne 0 ]; then
-            {
-              echo "## Assemble failed"
-              echo '```'
-              tail -200 /tmp/assemble.log
-              echo '```'
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
-          exit "$status"
+          exit ${PIPESTATUS[0]}
 
       - name: Verify APK
         working-directory: android
@@ -94,12 +74,7 @@ jobs:
           APK="app/build/outputs/apk/debug/app-debug.apk"
           test -s "$APK"
           ls -la "$APK"
-          {
-            echo "## Debug APK"
-            echo '```'
-            "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK"
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -107,3 +82,27 @@ jobs:
           name: Water-Reminder-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Publish failure diagnostics
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "### CI diagnostics"
+            echo ""
+            echo "Commit: \`${GITHUB_SHA}\`"
+            for f in toolchain unit-tests assemble; do
+              if [ -f "/tmp/$f.log" ]; then
+                echo ""
+                echo "<details><summary>$f</summary>"
+                echo ""
+                echo '```'
+                tail -250 "/tmp/$f.log"
+                echo '```'
+                echo ""
+                echo "</details>"
+              fi
+            done
+          } > /tmp/report.md
+          gh issue create --title "CI diagnostics ${GITHUB_SHA:0:8}" --body-file /tmp/report.md || true
