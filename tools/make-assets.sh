@@ -8,7 +8,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SRC="$ROOT/assets/logo/wr-logo-option-a.png"
+SRC="$ROOT/assets/logo/wr-logo.png"
 RES="$ROOT/android/app/src/main/res"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -18,8 +18,12 @@ mkdir -p "$RES"/mipmap-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi} \
          "$RES"/drawable-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi} \
          "$RES/drawable"
 
-# --- 1. Cut the logo out of its white studio background --------------------
+# --- 1. Cut the logo out of its studio background --------------------------
 convert "$SRC" -fuzz 10% -transparent white -trim +repage "$TMP/cut.png"
+
+# A touch of sharpening keeps the debossed letter edges crisp once the icon
+# has been scaled down to launcher sizes.
+convert "$TMP/cut.png" -unsharp 0x1.1+0.6+0.02 "$TMP/cut.png"
 
 # --- 2. Legacy launcher icons (square) + round variants --------------------
 while read -r density size; do

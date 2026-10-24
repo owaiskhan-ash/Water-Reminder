@@ -26,9 +26,11 @@ The interface is built from felt and sweatshirt fleece: a tiled wool texture
 with a soft vignette, a debossed panel, and the `WR` mark pressed into a felt
 patch.
 
-| | |
+| Mark | Home screen |
 |---|---|
-| ![logo](assets/logo/wr-logo-option-a.png) | The mark — `WR` debossed into felt and fleece |
+| ![logo](assets/logo/wr-logo.png) | ![home screen](docs/screenshots/home.png) |
+
+*The screenshot is rendered off-device by `AppScreenshotTest` on every CI run.*
 
 ## Building from source
 
