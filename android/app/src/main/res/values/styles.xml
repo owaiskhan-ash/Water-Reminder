@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Small, wide-tracked, quiet label -->
-    <style name="Felt.Label" parent="TextAppearance.Material3.LabelSmall">
+    <style name="FeltLabel" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textSize">11sp</item>
         <item name="android:letterSpacing">0.22</item>
         <item name="android:textColor">@color/text_secondary</item>
@@ -11,7 +11,7 @@
     </style>
 
     <!-- Quiet secondary copy -->
-    <style name="Felt.Caption" parent="TextAppearance.Material3.BodySmall">
+    <style name="FeltCaption" parent="TextAppearance.Material3.BodySmall">
         <item name="android:textSize">12sp</item>
         <item name="android:letterSpacing">0.03</item>
         <item name="android:textColor">@color/text_tertiary</item>
@@ -19,7 +19,7 @@
     </style>
 
     <!-- Pressed-in headline: the faint light edge sits above the glyphs -->
-    <style name="Felt.Deboss.Display" parent="TextAppearance.Material3.DisplaySmall">
+    <style name="FeltDebossDisplay" parent="TextAppearance.Material3.DisplaySmall">
         <item name="android:textSize">46sp</item>
         <item name="android:fontFamily">sans-serif-thin</item>
         <item name="android:textColor">@color/text_primary</item>
@@ -29,7 +29,7 @@
         <item name="android:shadowRadius">4</item>
     </style>
 
-    <style name="Felt.Divider">
+    <style name="FeltDivider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_marginTop">18dp</item>
@@ -37,7 +37,7 @@
         <item name="android:background">@color/divider</item>
     </style>
 
-    <style name="Felt.Chip" parent="Widget.Material3.Chip.Filter">
+    <style name="FeltChip" parent="Widget.Material3.Chip.Filter">
         <item name="android:textColor">@color/chip_text</item>
         <item name="chipBackgroundColor">@color/chip_background</item>
         <item name="chipStrokeColor">@color/chip_stroke</item>

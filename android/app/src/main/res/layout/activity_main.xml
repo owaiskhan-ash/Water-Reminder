@@ -29,7 +29,7 @@
 
         <TextView
             android:id="@+id/textBrand"
-            style="@style/Felt.Label"
+            style="@style/FeltLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -41,7 +41,7 @@
         <!-- Next reminder ================================================-->
         <TextView
             android:id="@+id/textNextLabel"
-            style="@style/Felt.Label"
+            style="@style/FeltLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
@@ -52,7 +52,7 @@
 
         <TextView
             android:id="@+id/textNextTime"
-            style="@style/Felt.Deboss.Display"
+            style="@style/FeltDebossDisplay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
@@ -64,7 +64,7 @@
 
         <TextView
             android:id="@+id/textCountdown"
-            style="@style/Felt.Caption"
+            style="@style/FeltCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
@@ -99,10 +99,10 @@
                 android:textSize="16sp"
                 tools:checked="true" />
 
-            <View style="@style/Felt.Divider" />
+            <View style="@style/FeltDivider" />
 
             <TextView
-                style="@style/Felt.Label"
+                style="@style/FeltLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/interval" />
@@ -119,28 +119,28 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip1h"
-                    style="@style/Felt.Chip"
+                    style="@style/FeltChip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/interval_1h" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip2h"
-                    style="@style/Felt.Chip"
+                    style="@style/FeltChip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/interval_2h" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip3h"
-                    style="@style/Felt.Chip"
+                    style="@style/FeltChip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/interval_3h" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip4h"
-                    style="@style/Felt.Chip"
+                    style="@style/FeltChip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/interval_4h" />
@@ -148,13 +148,13 @@
 
             <TextView
                 android:id="@+id/textIntervalSummary"
-                style="@style/Felt.Caption"
+                style="@style/FeltCaption"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 tools:text="Next: 12:00 PM · 2:00 PM · 4:00 PM" />
 
-            <View style="@style/Felt.Divider" />
+            <View style="@style/FeltDivider" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchQuietHours"
@@ -166,7 +166,7 @@
 
             <TextView
                 android:id="@+id/textExactAlarm"
-                style="@style/Felt.Caption"
+                style="@style/FeltCaption"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -178,7 +178,7 @@
 
         <TextView
             android:id="@+id/textVersion"
-            style="@style/Felt.Caption"
+            style="@style/FeltCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
