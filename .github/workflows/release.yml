@@ -24,7 +24,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ANDROID_KEYSTORE_FILE: ${{ github.workspace }}/android/keystore/release.p12
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || 'waterreminder-release' }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || 'waterreminder' }}
       ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || 'waterreminder-release' }}
@@ -54,16 +53,17 @@ jobs:
           SECRET_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
           set -euo pipefail
-          mkdir -p "$(dirname "$ANDROID_KEYSTORE_FILE")"
+          KEYFILE="${RUNNER_TEMP}/release.p12"
           if [ -n "${SECRET_KEYSTORE:-}" ]; then
-            echo "$SECRET_KEYSTORE" | base64 --decode > "$ANDROID_KEYSTORE_FILE"
+            echo "$SECRET_KEYSTORE" | base64 --decode > "$KEYFILE"
             echo "signing with the repository secret keystore"
           else
-            cp android/keystore/release.p12 "$ANDROID_KEYSTORE_FILE"
+            cp android/keystore/release.p12 "$KEYFILE"
             echo "signing with the committed demo keystore"
           fi
-          test -s "$ANDROID_KEYSTORE_FILE"
-          echo "keystore ready: $(stat -c %s "$ANDROID_KEYSTORE_FILE") bytes"
+          test -s "$KEYFILE"
+          echo "keystore ready: $(stat -c %s "$KEYFILE") bytes"
+          echo "ANDROID_KEYSTORE_FILE=$KEYFILE" >> "$GITHUB_ENV"
 
       - name: Unit tests
         working-directory: android
