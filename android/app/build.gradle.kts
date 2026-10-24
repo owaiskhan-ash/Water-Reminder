@@ -8,11 +8,16 @@ plugins {
 /**
  * Signing material is supplied through environment variables so that no
  * keystore ever has to live inside the repository.
+ *
+ * The names deliberately differ from the SigningConfig property names: inside
+ * `signingConfigs { create("release") { ... } }` the receiver's members win
+ * name resolution, so `keyPassword = keyPassword` would assign the property to
+ * itself and silently sign with nothing.
  */
 val keystoreFilePath: String = System.getenv("ANDROID_KEYSTORE_FILE").orEmpty()
-val keystorePassword: String = System.getenv("ANDROID_KEYSTORE_PASSWORD").orEmpty()
-val keyAlias: String = System.getenv("ANDROID_KEY_ALIAS").orEmpty()
-val keyPassword: String = System.getenv("ANDROID_KEY_PASSWORD").orEmpty()
+val keystoreStorePass: String = System.getenv("ANDROID_KEYSTORE_PASSWORD").orEmpty()
+val keystoreAliasName: String = System.getenv("ANDROID_KEY_ALIAS").orEmpty()
+val keystoreKeyPass: String = System.getenv("ANDROID_KEY_PASSWORD").orEmpty()
 
 android {
     namespace = "com.owaiskhan.waterreminder"
@@ -30,11 +35,19 @@ android {
 
     signingConfigs {
         if (keystoreFilePath.isNotBlank()) {
+            require(
+                keystoreStorePass.isNotBlank() &&
+                    keystoreAliasName.isNotBlank() &&
+                    keystoreKeyPass.isNotBlank(),
+            ) {
+                "Signing material is incomplete: ANDROID_KEYSTORE_PASSWORD, " +
+                    "ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD must all be set."
+            }
             create("release") {
                 storeFile = file(keystoreFilePath)
-                storePassword = keystorePassword
-                keyAlias = keyAlias
-                keyPassword = keyPassword
+                storePassword = keystoreStorePass
+                keyAlias = keystoreAliasName
+                keyPassword = keystoreKeyPass
             }
         }
     }
