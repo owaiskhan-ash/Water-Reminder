@@ -99,15 +99,44 @@ jobs:
           cp "$APK" "../Water-Reminder-${GITHUB_REF_NAME}.apk"
           ls -la "../Water-Reminder-${GITHUB_REF_NAME}.apk"
 
+          if [ -f "app/build/screenshots/home.png" ]; then
+            cp "app/build/screenshots/home.png" "../preview-${GITHUB_REF_NAME}.png"
+            echo "preview attached: $(stat -c %s "../preview-${GITHUB_REF_NAME}.png") bytes"
+          else
+            echo "no screenshot was produced"
+          fi
+
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           name: Water Reminder ${{ github.event.inputs.tag || github.ref_name }}
           body_path: RELEASE_NOTES.md
-          files: Water-Reminder-*.apk
+          files: |
+            Water-Reminder-*.apk
+            preview-*.png
           generate_release_notes: true
-          fail_on_unmatched_files: true
+          fail_on_unmatched_files: false
+
+      - name: Append build verification to the release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          {
+            echo ""
+            echo "### Build verification"
+            echo ""
+            echo '```'
+            "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "Water-Reminder-${GITHUB_REF_NAME}.apk" | head -14
+            echo '```'
+            echo ""
+            echo "Signature:"
+            echo '```'
+            "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs "Water-Reminder-${GITHUB_REF_NAME}.apk" | head -6
+            echo '```'
+          } >> RELEASE_NOTES.md
+          gh release edit "${GITHUB_REF_NAME}" --notes-file RELEASE_NOTES.md
 
       - name: Publish failure diagnostics
         if: failure()
