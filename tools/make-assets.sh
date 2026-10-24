@@ -45,9 +45,12 @@ xxxhdpi 192
 EOF
 
 # --- 3. Adaptive icon foreground (108dp canvas, logo inside the 66dp safe zone)
+# The resize is grouped so it only applies to the logo: an ungrouped -resize
+# would also shrink the canvas and the foreground would fill the whole shape.
 while read -r density canvas logo; do
   convert -size "${canvas}x${canvas}" xc:none \
-    "$TMP/cut.png" -resize "${logo}x${logo}" -gravity center -composite \
+    \( "$TMP/cut.png" -resize "${logo}x${logo}" \) \
+    -gravity center -composite \
     "$RES/mipmap-$density/ic_launcher_foreground.png"
 done <<'EOF'
 mdpi 108 66
@@ -55,6 +58,19 @@ hdpi 162 99
 xhdpi 216 132
 xxhdpi 324 198
 xxxhdpi 432 264
+EOF
+
+# --- 3b. In-app brand mark, sized for the 116dp logo view -------------------
+while read -r density size; do
+  mkdir -p "$RES/drawable-$density"
+  convert "$TMP/cut.png" -resize "${size}x${size}" \
+    "$RES/drawable-$density/ic_brand_mark.png"
+done <<'EOF'
+mdpi 116
+hdpi 174
+xhdpi 232
+xxhdpi 348
+xxxhdpi 464
 EOF
 
 # --- 4. Felt / sweatshirt fleece UI texture --------------------------------

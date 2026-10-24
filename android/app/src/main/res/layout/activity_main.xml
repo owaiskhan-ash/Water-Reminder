@@ -22,7 +22,7 @@
             android:layout_width="116dp"
             android:layout_height="116dp"
             android:contentDescription="@string/app_name"
-            android:src="@mipmap/ic_launcher"
+            android:src="@drawable/ic_brand_mark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
