@@ -148,13 +148,24 @@ class ReminderScheduleTest {
 
     @Test
     fun `consecutive slots are exactly one interval apart`() {
-        var cursor = at(2024, 5, 1, 9, 0)
+        // 08:00 sits on the midnight-aligned two hour grid.
+        val first = at(2024, 5, 1, 8, 0)
+        var cursor = first
+
         repeat(5) {
             cursor = ReminderSchedule.nextTrigger(cursor, 120, 0, 0, zone)
         }
 
-        val first = at(2024, 5, 1, 9, 0)
-        val sixth = cursor
-        assertEquals(5 * 120L * 60_000L, sixth - first)
+        assertEquals(5 * 120L * 60_000L, cursor - first)
+    }
+
+    @Test
+    fun `slots are anchored to midnight rather than to when reminders were switched on`() {
+        // Switching on at 09:07 still lands on the 10:00 slot.
+        val next = ReminderSchedule.nextTrigger(at(2024, 5, 1, 9, 7), 120, 0, 0, zone)
+
+        val slot = slotOf(next)
+        assertEquals(10, slot.hour)
+        assertEquals(0, slot.minute)
     }
 }

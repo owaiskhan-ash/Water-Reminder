@@ -18,10 +18,20 @@ object ReminderScheduler {
 
     const val ACTION_REMIND = "com.owaiskhan.waterreminder.REMIND"
 
+    /** Carries the moment the alarm was supposed to fire. */
+    const val EXTRA_TRIGGER_AT = "com.owaiskhan.waterreminder.TRIGGER_AT"
+
     private const val REQUEST_CODE = 4201
 
-    /** Schedules (or re-schedules) the next reminder. */
-    fun schedule(context: Context) {
+    /**
+     * Schedules (or re-schedules) the next reminder.
+     *
+     * [fromMillis] is the moment the next slot is counted from. It defaults to
+     * now, but the receiver passes the moment the alarm was *supposed* to fire
+     * so that an alarm which fires a fraction of a second early does not
+     * schedule the very same slot a second time.
+     */
+    fun schedule(context: Context, fromMillis: Long = System.currentTimeMillis()) {
         val appContext = context.applicationContext
         val prefs = ReminderPrefs(appContext)
 
@@ -33,14 +43,14 @@ object ReminderScheduler {
         val alarmManager = appContext.getSystemService(AlarmManager::class.java) ?: return
 
         val triggerAt = ReminderSchedule.nextTrigger(
-            nowMillis = System.currentTimeMillis(),
+            nowMillis = fromMillis,
             intervalMinutes = prefs.intervalMinutes,
             quietStartMinute = prefs.quietStartMinute,
             quietEndMinute = prefs.quietEndMinute,
             zone = ZoneId.systemDefault(),
         )
 
-        val pendingIntent = reminderPendingIntent(appContext)
+        val pendingIntent = reminderPendingIntent(appContext, triggerAt)
 
         try {
             if (canScheduleExact(alarmManager)) {
@@ -73,7 +83,7 @@ object ReminderScheduler {
     fun cancel(context: Context) {
         val appContext = context.applicationContext
         val alarmManager = appContext.getSystemService(AlarmManager::class.java)
-        alarmManager?.cancel(reminderPendingIntent(appContext))
+        alarmManager?.cancel(reminderPendingIntent(appContext, 0L))
         ReminderPrefs(appContext).nextTriggerAt = 0L
     }
 
@@ -90,8 +100,10 @@ object ReminderScheduler {
             true
         }
 
-    private fun reminderPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, ReminderReceiver::class.java).setAction(ACTION_REMIND)
+    private fun reminderPendingIntent(context: Context, triggerAt: Long): PendingIntent {
+        val intent = Intent(context, ReminderReceiver::class.java)
+            .setAction(ACTION_REMIND)
+            .putExtra(EXTRA_TRIGGER_AT, triggerAt)
         return PendingIntent.getBroadcast(
             context,
             REQUEST_CODE,
