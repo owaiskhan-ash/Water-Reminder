@@ -1,0 +1,151 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - 'v*'
+    paths-ignore:
+      - 'docs/screenshots/**'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Test and build debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platforms;android-34 build-tools;34.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Toolchain report
+        run: |
+          {
+            echo "java: $(java -version 2>&1 | head -1)"
+            echo "gradle: $(gradle --version 2>&1 | grep -E '^Gradle ' | head -1)"
+            echo "gradle on PATH: $(command -v gradle || echo MISSING)"
+            echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
+            echo "platforms: $(ls "${ANDROID_HOME}/platforms" 2>&1 | tr '\n' ' ')"
+            echo "build-tools: $(ls "${ANDROID_HOME}/build-tools" 2>&1 | tr '\n' ' ')"
+          } | tee /tmp/toolchain.log
+
+      - name: Unit tests
+        working-directory: android
+        run: |
+          set -o pipefail
+          gradle :app:testDebugUnitTest --no-daemon --stacktrace 2>&1 | tee /tmp/unit-tests.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Assemble debug APK
+        working-directory: android
+        run: |
+          set -o pipefail
+          gradle :app:assembleDebug --no-daemon --stacktrace 2>&1 | tee /tmp/assemble.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Verify APK
+        working-directory: android
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          ls -la "$APK"
+          "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK"
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Water-Reminder-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: Publish the rendered preview
+        if: success()
+        run: |
+          set +e
+          SRC="android/app/build/screenshots/home.png"
+          DST="docs/screenshots/home.png"
+          if [ ! -f "$SRC" ]; then
+            echo "no screenshot was produced"
+            exit 0
+          fi
+          if [ -f "$DST" ]; then
+            echo "preview already in the repository"
+            exit 0
+          fi
+          mkdir -p docs/screenshots
+          cp "$SRC" "$DST"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DST"
+          git commit -m "Add the rendered home screen preview"
+          git push origin "HEAD:${GITHUB_REF_NAME}" || echo "preview push skipped"
+
+      - name: Clean up stale diagnostics
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          gh issue list --state all --limit 50 --json number,title \
+            --jq '.[] | select(.title | startswith("CI diagnostics") or startswith("Release diagnostics")) | select(.title | contains("'"${GITHUB_SHA:0:8}"'") | not) | .number' \
+            > /tmp/stale.txt
+          while read -r number; do
+            [ -z "$number" ] && continue
+            gh issue delete "$number" --yes 2>/dev/null \
+              || gh issue close "$number" --reason "not planned" 2>/dev/null \
+              || echo "could not clean up issue #$number"
+          done < /tmp/stale.txt
+          echo "issues remaining:"
+          gh issue list --state all --limit 50 --json number,state,title \
+            --jq '.[] | "  #\(.number) [\(.state)] \(.title)"'
+
+      - name: Publish failure diagnostics
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "### CI diagnostics"
+            echo ""
+            echo "Commit: \`${GITHUB_SHA}\`"
+            for f in toolchain unit-tests assemble; do
+              if [ -f "/tmp/$f.log" ]; then
+                echo ""
+                echo "<details><summary>$f</summary>"
+                echo ""
+                echo '```'
+                tail -250 "/tmp/$f.log"
+                echo '```'
+                echo ""
+                echo "</details>"
+              fi
+            done
+          } > /tmp/report.md
+          gh issue create --title "CI diagnostics ${GITHUB_SHA:0:8}" --body-file /tmp/report.md || true

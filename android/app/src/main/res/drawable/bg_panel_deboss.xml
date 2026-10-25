@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A panel that looks pressed into the felt: a faint light edge along the
+  bottom-right and a soft dark edge along the top-left.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#0FFFFFFF" />
+            <corners android:radius="20dp" />
+        </shape>
+    </item>
+
+    <!-- light catching the lower-right inner edge -->
+    <item
+        android:bottom="-1dp"
+        android:left="1dp"
+        android:right="-1dp"
+        android:top="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/felt_panel_edge_light" />
+            <corners android:radius="20dp" />
+        </shape>
+    </item>
+
+    <!-- shadow along the upper-left inner edge -->
+    <item
+        android:bottom="1dp"
+        android:left="-1dp"
+        android:right="1dp"
+        android:top="-1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/felt_panel_edge_dark" />
+            <corners android:radius="20dp" />
+        </shape>
+    </item>
+
+</layer-list>

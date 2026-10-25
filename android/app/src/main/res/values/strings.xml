@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Water Reminder</string>
+
+    <!-- Notification -->
+    <string name="channel_name">Water reminders</string>
+    <string name="channel_description">A gentle nudge to drink a glass of water every couple of hours.</string>
+    <string name="notification_title">Time to drink water</string>
+    <string name="notification_body">A glass now keeps the day flowing.</string>
+
+    <!-- Screen -->
+    <string name="next_reminder">Next reminder</string>
+    <string name="reminders_off">Reminders off</string>
+    <string name="em_dash">—</string>
+    <string name="due_now">due now</string>
+    <string name="in_minutes">in %1$d min</string>
+    <string name="in_hours">in %1$d h</string>
+    <string name="in_hours_minutes">in %1$d h %2$d min</string>
+
+    <string name="reminders">Reminders</string>
+    <string name="interval">Interval</string>
+    <string name="interval_1h">1 h</string>
+    <string name="interval_2h">2 h</string>
+    <string name="interval_3h">3 h</string>
+    <string name="interval_4h">4 h</string>
+    <string name="upcoming_summary">Next: %1$s</string>
+    <string name="quiet_hours">Quiet hours · 10 PM – 8 AM</string>
+    <string name="exact_alarm_hint">Allow precise reminders so they arrive exactly on time.</string>
+    <string name="permission_denied">Notifications are blocked, so reminders cannot be delivered.</string>
+    <string name="version_label">v1.0.0</string>
+</resources>
